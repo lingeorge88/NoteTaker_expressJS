@@ -30,7 +30,7 @@ app.post('/api/notes', (req, res) => {
     text: req.body.text,
     id: uuidv4(),
   };
-  console.log(`Post request received: ${req.body}`);
+  console.log(`Post request received: ${newNote1}`);
   dbJson.push(newNote1);
   fs.writeFileSync("db/db.json", JSON.stringify(dbJson));
   res.json(dbJson);
