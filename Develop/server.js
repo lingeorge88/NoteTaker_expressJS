@@ -1,12 +1,11 @@
 const express = require('express');
 const path = require('path');
-const { readFromFile, readAndAppend } = require('./public/assets/js/fsUtils');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const app = express();
-
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 // GET Route for homepage
 app.get("/", (req,res) =>
@@ -18,28 +17,32 @@ app.get("/notes", (req, res) =>
 res.sendFile(path.join(__dirname, '/public/notes.html'))
 );
 // GET route for api/notes that returns saved notes as JSON
-app.get('/api/notes', (req, res) => {
-  readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
+app.get('/api/notes', async(req, res) => {
+  const dbJson = await JSON.parse(fs.readFileSync("db/db.json", "utf8"));
+  res.json(dbJson);
 });
 
 app.post('/api/notes', (req, res) => {
-  console.log(req.body);
-
-  const { title, text } = req.body;
-
-  if (req.body) {
-    const newNote = {
-      title,
-      text,
-      note_id: uuidv4(),
-    };
-
-    readAndAppend(newNote, './db/db.json');
-    res.json(`Note added successfully 🚀`);
-  } else {
-    res.error('Error in adding new note');
-  }
+  const dbJson = JSON.parse(fs.readFileSync("db/db.json", "utf8"));
+  const newNote1 = {
+    title: req.body.title,
+    text: req.body.text,
+    id: uuidv4(),
+  };
+  console.log(`Post request received: ${req.body}`);
+  dbJson.push(newNote1);
+  fs.writeFileSync("db/db.json", JSON.stringify(dbJson));
+  res.json(dbJson);
 });
+app.delete('/api/notes/:id', (req,res) =>{
+  let data = fs.readFileSync("db/db.json", "utf8");
+  const dataJSON = JSON.parse(data);
+  const newNotes = dataJSON.filter((note) =>{
+    return note.id !== req.params.id;
+  });
+  fs.writeFileSync("db/db.json", JSON.stringify(newNotes));
+  res.json("Selected note has been deleted. ❌🗑️");
+})
 // GET route for routes that don't exist
 app.get('*', (req, res) =>
   res.sendFile(path.join(__dirname, '/public/index.html')
