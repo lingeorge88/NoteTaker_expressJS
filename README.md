@@ -8,7 +8,7 @@ This is a simple note-taking application created with Express and NodeJS that al
 
 
 ## Usage Instructions
-1. Click here to open the [Deployed Application Link:](https://notetaker1stbuild.herokuapp.com/)
+1. Click here to open the [Deployed Application](https://notetaker1stbuild.herokuapp.com/)
 2. Click the "Get Started" button to open the note taker application.
 3. Enter text into the 'title' and 'text' fields 
 4. Click the save icon (upper right corner) to save the note.
